@@ -158,6 +158,7 @@ struct RasterizationTestVariant
 	bool tex_rect;
 	bool prim_depth;
 	bool ym_out_of_range;
+	bool key_enable;
 };
 
 static RGBMulAdd generate_random_input(RNG &rng, RGBMulAdd input)
@@ -350,6 +351,7 @@ static bool run_conformance_rasterization(ReplayerState &state, const Arguments 
 	state.builder.set_enable_convert_one(variant.convert_one);
 	state.builder.set_enable_bilerp_cycle(0, variant.bilerp0);
 	state.builder.set_enable_bilerp_cycle(1, variant.bilerp1);
+	state.builder.set_key_enable(variant.key_enable);
 
 	for (unsigned index = 0; index <= args.hi; index++)
 	{
@@ -383,7 +385,16 @@ static bool run_conformance_rasterization(ReplayerState &state, const Arguments 
 
 		if (variant.combiner_inputs)
 		{
-			state.builder.set_combiner_2cycle(
+			if (variant.key_enable)
+			{
+				CombinerInputs key_inputs = {
+					{ RGBMulAdd::Primitive, RGBMulSub::KeyCenter, RGBMul::KeyScale, RGBAdd::Env },
+					{ AlphaAddSub::Zero, AlphaAddSub::Zero, AlphaMul::Zero, AlphaAddSub::One }
+				};
+				state.builder.set_combiner_2cycle(key_inputs, key_inputs);
+			}
+			else
+				state.builder.set_combiner_2cycle(
 					{
 							{
 									generate_random_input(rng, RGBMulAdd::Zero),
@@ -460,6 +471,11 @@ static bool run_conformance_rasterization(ReplayerState &state, const Arguments 
 				state.builder.set_blend_mode(0, BlendMode1A::PixelColor, BlendMode1B::ShadeAlpha,
 				                             BlendMode2A::FogColor, BlendMode2B::InvPixelAlpha);
 				state.builder.set_blend_mode(1, BlendMode1A::PixelColor, BlendMode1B::PixelAlpha,
+				                             BlendMode2A::MemoryColor, BlendMode2B::InvPixelAlpha);
+			}
+			else if (variant.key_enable)
+			{
+				state.builder.set_blend_mode(0, BlendMode1A::PixelColor, BlendMode1B::PixelAlpha,
 				                             BlendMode2A::MemoryColor, BlendMode2B::InvPixelAlpha);
 			}
 			else
@@ -1173,6 +1189,25 @@ static int main_inner(int argc, char **argv)
 		variant.depth = true;
 		variant.combiner_inputs = true;
 		variant.cycle_type = CycleType::Cycle2;
+		return run_conformance_rasterization(state, args, variant);
+	}});
+	suites.push_back({ "combiner-1cycle-chroma-key", [](ReplayerState &state, const Arguments &args) -> bool {
+		RasterizationTestVariant variant = {};
+		variant.color = true;
+		variant.combiner_inputs = true;
+		variant.blending = true;
+		variant.fb_size = TextureSize::Bpp32;
+		variant.key_enable = true;
+		return run_conformance_rasterization(state, args, variant);
+	}});
+	suites.push_back({ "combiner-2cycle-chroma-key", [](ReplayerState &state, const Arguments &args) -> bool {
+		RasterizationTestVariant variant = {};
+		variant.color = true;
+		variant.combiner_inputs = true;
+		variant.blending = true;
+		variant.cycle_type = CycleType::Cycle2;
+		variant.fb_size = TextureSize::Bpp32;
+		variant.key_enable = true;
 		return run_conformance_rasterization(state, args, variant);
 	}});
 

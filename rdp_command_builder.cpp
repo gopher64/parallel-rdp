@@ -151,6 +151,11 @@ void CommandBuilder::set_enable_sample_quad(bool enable)
 	other_modes.sample_quad = enable;
 }
 
+void CommandBuilder::set_key_enable(bool enable)
+{
+	other_modes.key_enable = enable;
+}
+
 void CommandBuilder::set_blend_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	uint32_t cmd[2] = {};
@@ -302,6 +307,8 @@ void CommandBuilder::flush_default_state()
 		cmd[0] |= 1 << 10;
 	if (other_modes.convert_one)
 		cmd[0] |= 1 << 9;
+	if (other_modes.key_enable)
+		cmd[0] |= 1 << 8;
 	cmd[0] |= uint32_t(other_modes.rgb_dither) << 6;
 	cmd[0] |= uint32_t(other_modes.alpha_dither) << 4;
 	cmd[1] |= uint32_t(other_modes.blender_cycles[0].blend_1a) << 30;
