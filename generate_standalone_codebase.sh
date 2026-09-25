@@ -64,3 +64,5 @@ cp -v parallel-rdp/config.mk "$OUTDIR/config.mk"
 echo "=== Compiling to SPIR-V ... ==="
 slangmosh --strip -O --namespace RDP parallel-rdp/shaders/slangmosh.json --output "$OUTDIR/parallel-rdp/shaders/slangmosh.hpp"
 echo "=== Done! ==="
+
+patch $OUTDIR/util/timer.cpp timer.patch
