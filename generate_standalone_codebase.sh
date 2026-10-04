@@ -65,4 +65,5 @@ echo "=== Compiling to SPIR-V ... ==="
 slangmosh --strip -O --namespace RDP parallel-rdp/shaders/slangmosh.json --output "$OUTDIR/parallel-rdp/shaders/slangmosh.hpp"
 echo "=== Done! ==="
 
-patch $OUTDIR/util/timer.cpp timer.patch
+patch $OUTDIR/util/timer.cpp patches/timer.patch
+patch $OUTDIR/vulkan/device.cpp patches/turnip.patch
