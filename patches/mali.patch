@@ -1,0 +1,25 @@
+commit d461b337787465d994d6bafc50655765de5e1354
+Author: Logan McNaughton <848146+loganmc10@users.noreply.github.com>
+Date:   Thu Oct 8 09:13:44 2026 +0200
+
+    mali fixes
+
+diff --git a/vulkan/context.cpp b/vulkan/context.cpp
+index e76839b..b0b47f5 100644
+--- a/vulkan/context.cpp
++++ b/vulkan/context.cpp
+@@ -1061,6 +1061,14 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface,
+ 				return false;
+ 
+ 	vkGetPhysicalDeviceProperties(gpu, &gpu_props);
++
++	// Push descriptors and descriptor buffers are unreliable on ARM/Mali GPUs, so disable them there.
++	if (gpu_props.vendorID == VENDOR_ID_ARM)
++	{
++		LOGW("ARM/Mali GPU detected, disabling push descriptor and descriptor buffer support.\n");
++		flags &= ~(CONTEXT_CREATION_ENABLE_PUSH_DESCRIPTOR_BIT | CONTEXT_CREATION_ENABLE_DESCRIPTOR_BUFFER_BIT);
++	}
++
+ 	// We can use core device functionality if enabled VkInstance apiVersion and physical device supports it.
+ 	ext.device_api_core_version = std::min(ext.instance_api_core_version, gpu_props.apiVersion);
+ 
