@@ -8,14 +8,14 @@ diff --git a/vulkan/context.cpp b/vulkan/context.cpp
 index e76839b..b0b47f5 100644
 --- a/vulkan/context.cpp
 +++ b/vulkan/context.cpp
-@@ -1061,6 +1061,14 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface,
+@@ -1061,6 +1061,13 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface,
  				return false;
  
  	vkGetPhysicalDeviceProperties(gpu, &gpu_props);
 +
 +	// Push descriptors and descriptor buffers are unreliable on Android, so disable them there.
 +#ifdef ANDROID
-+	LOGW("ARM/Mali GPU detected, disabling push descriptor and descriptor buffer support.\n");
++	LOGW("Android detected, disabling push descriptor and descriptor buffer support.\n");
 +	flags &= ~(CONTEXT_CREATION_ENABLE_PUSH_DESCRIPTOR_BIT | CONTEXT_CREATION_ENABLE_DESCRIPTOR_BUFFER_BIT);
 +#endif
 +
