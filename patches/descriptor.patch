@@ -1,0 +1,36 @@
+From 56eaae188a56ce8bd578e644550cd60cf61f5684 Mon Sep 17 00:00:00 2001
+From: DiscoStarslayer <disco@disco.camp>
+Date: Sun, 11 Oct 2026 20:49:45 -0400
+Subject: [PATCH] Prefer `supports_descriptor_buffer` over feature check
+
+---
+ vulkan/memory_allocator.cpp | 2 +-
+ vulkan/shader.cpp           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/vulkan/memory_allocator.cpp b/vulkan/memory_allocator.cpp
+index a545bf0b..5feb1ea6 100644
+--- a/vulkan/memory_allocator.cpp
++++ b/vulkan/memory_allocator.cpp
+@@ -1442,7 +1442,7 @@ bool DescriptorBufferAllocator::create_image_view(const VkImageViewCreateInfo &i
+ 			copy_storage_image(resource_heap.mapped + view.input_attachment_feedback.heap_index * desc_size, view.input_attachment_feedback.ptr);
+ 		}
+ 	}
+-	else if (device->get_device_features().descriptor_buffer_features.descriptorBuffer &&
++	else if (device->get_device_features().supports_descriptor_buffer &&
+ 	         need_image_view_object)
+ 	{
+ 		VkDescriptorImageInfo image_info = {};
+diff --git a/vulkan/shader.cpp b/vulkan/shader.cpp
+index 13b9dcbc..1c8f4832 100644
+--- a/vulkan/shader.cpp
++++ b/vulkan/shader.cpp
+@@ -528,7 +528,7 @@ void PipelineLayout::init_legacy(const ImmutableSamplerBank *immutable_samplers)
+ 	device->register_pipeline_layout(pipe_layout, get_hash(), info);
+ #endif
+ 
+-	if (!device->get_device_features().descriptor_buffer_features.descriptorBuffer)
++	if (!device->get_device_features().supports_descriptor_buffer)
+ 		create_update_templates();
+ }
+ 
