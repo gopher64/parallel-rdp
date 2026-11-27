@@ -68,3 +68,4 @@ echo "=== Done! ==="
 patch $OUTDIR/util/timer.cpp patches/timer.patch
 patch $OUTDIR/vulkan/device.cpp patches/turnip.patch
 patch -d $OUTDIR -p1 < patches/descriptor.patch
+patch $OUTDIR/vulkan/context.cpp patches/android.patch

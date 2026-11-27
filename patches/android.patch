@@ -1,0 +1,20 @@
+diff --git a/vulkan/context.cpp b/vulkan/context.cpp
+index ad9e9c8..cec2897 100644
+--- a/vulkan/context.cpp
++++ b/vulkan/context.cpp
+@@ -1089,6 +1089,15 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface,
+ 		return false;
+ 	}
+ 
++#ifdef ANDROID
++	if (gpu_props.vendorID == VENDOR_ID_ARM)
++	{
++		// Template-based push descriptor updates can crash the Mali driver.
++		LOGW("Disabling push descriptors on the Android Mali driver.\n");
++		flags &= ~CONTEXT_CREATION_ENABLE_PUSH_DESCRIPTOR_BIT;
++	}
++#endif
++
+ 	vkGetPhysicalDeviceMemoryProperties(gpu, &mem_props);
+ 
+ 	uint32_t queue_family_count = 0;
